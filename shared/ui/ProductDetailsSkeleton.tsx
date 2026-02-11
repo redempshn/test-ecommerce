@@ -1,6 +1,6 @@
 const ProductDetailsSkeleton = () => {
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto mt-13">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Image */}
         <div className="aspect-square bg-gray-200 rounded-xl animate-pulse" />

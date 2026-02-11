@@ -1,11 +1,11 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/shared/hooks/reduxHooks";
-import { fetchProducts } from "@/shared/redux/productThunk";
-import { selectHasActiveFilters } from "@/shared/redux/selectors/filters.selector";
-import { selectProductsStatus } from "@/shared/redux/selectors/products.selector";
-import { selectSortedProducts } from "@/shared/redux/selectors/sort.selector";
-import { resetFilters } from "@/shared/redux/slises/filtersSlice";
+import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
+import { selectHasActiveFilters } from "@/shared/lib/redux/filters/filters.selector";
+import { resetFilters } from "@/shared/lib/redux/filters/filtersSlice";
+import { selectProductsStatus } from "@/shared/lib/redux/products/products.selector";
+import { fetchProducts } from "@/shared/lib/redux/products/productThunk";
+import { selectSortedProducts } from "@/shared/lib/redux/sort/sort.selector";
 import EmptyState from "@/shared/ui/EmptyState";
 import ErrorState from "@/shared/ui/Error";
 import Skeleton from "@/shared/ui/Skeleton";

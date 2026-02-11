@@ -1,22 +1,34 @@
 "use client";
 
-import Dashboard from "@/features/Dashboard";
-import Drawer from "@/features/Drawer";
-import ProductList from "@/widgets/ui/ProductList";
-import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
+import { selectProductsStatus } from "@/shared/lib/redux/products/products.selector";
+import { fetchProducts } from "@/shared/lib/redux/products/productThunk";
+import { useEffect } from "react";
 
 export default function Home() {
-  const [isActive, setIsActive] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(selectProductsStatus);
 
-  const toggleActive = () => {
-    setIsActive(!isActive);
-  };
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, status]);
 
   return (
-    <>
-      <Dashboard onToggle={toggleActive} />
-      <Drawer onToggle={toggleActive} currentStatus={isActive} />
-      <ProductList />
-    </>
+    <div className="max-w-7xl mx-auto flex items-center justify-center h-96">
+      <div className="flex flex-col text-center">
+        <h1 className="text-2xl uppercase">Our home page</h1>
+        <p className="text-sm text-gray-600 uppercase">
+          place where you can find what you looking for!
+        </p>
+      </div>
+    </div>
   );
 }
+
+// const dispatch = useAppDispatch();
+
+// useEffect(() => {
+//   dispatch(restoreSession());
+// }, []);

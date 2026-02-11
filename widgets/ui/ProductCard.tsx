@@ -1,8 +1,7 @@
 "use client";
-
-import { useAppDispatch, useAppSelector } from "@/shared/hooks/reduxHooks";
-import { selectCartItemByProductId } from "@/shared/redux/selectors/cart.selectors";
-import { addToCart } from "@/shared/redux/slises/cartSlice";
+import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
+import { selectCartItemByProductId } from "@/shared/lib/redux/cart/cart.selectors";
+import { addToCart } from "@/shared/lib/redux/cart/cartSlice";
 import { Product } from "@/shared/types/product";
 import Button from "@/shared/ui/Button";
 import Image from "next/image";
@@ -24,7 +23,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <Link href={`/${product.id}`} className="cursor-pointer block">
+    <Link href={`/products/${product.id}`} className="cursor-pointer block">
       <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 ease-in-out p-3">
         <div className="relative aspect-4/3 mb-2">
           <Image

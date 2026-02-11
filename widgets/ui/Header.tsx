@@ -1,32 +1,30 @@
 "use client";
 
-import Badge from "@/shared/ui/Badge";
-import { useAppSelector } from "@/shared/hooks/reduxHooks";
-import { selectCartUniqueItemsCount } from "@/shared/redux/selectors/cart.selectors";
+import HeaderTools from "@/entities/HeaderTools";
 import { useRouter } from "next/navigation";
 
 const Header = () => {
   const router = useRouter();
-  const totalUniqueItems = useAppSelector(selectCartUniqueItemsCount);
 
   return (
-    <header className="w-full p-4 mb-4 border-b-gray-300  bg-white shadow-sm">
+    <header className="w-full p-4 border-b border-b-gray-200 bg-white ">
       <nav className="mx-auto flex max-w-7xl items-center justify-between">
-        <li
-          className="text-xl text-muted-foreground list-none"
-          onClick={() => router.push("/")}
-        >
-          Product list
-        </li>
-        <li
-          className="text-xl text-muted-foreground list-none relative"
-          onClick={() => router.push("/cart")}
-        >
-          Shopping cart
-          {totalUniqueItems > 0 && (
-            <Badge totalUniqueItems={totalUniqueItems} />
-          )}
-        </li>
+        <div className="flex">
+          <li
+            className="text-xl text-muted-foreground list-none cursor-pointer mr-6"
+            onClick={() => router.push("/")}
+          >
+            Home
+          </li>
+          <li
+            className="text-xl text-muted-foreground list-none cursor-pointer"
+            onClick={() => router.push("/products")}
+          >
+            Products
+          </li>
+        </div>
+
+        <HeaderTools />
       </nav>
     </header>
   );

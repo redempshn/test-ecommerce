@@ -1,4 +1,4 @@
-import ShoppingCart from "@/features/ShoppingCart";
+import ShoppingCart from "@/features/cart/ShoppingCart";
 
 export default function Cart() {
   return (

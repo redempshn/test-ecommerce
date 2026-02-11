@@ -3,10 +3,11 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/widgets/ui/Header";
-import { store } from "@/shared/redux/store/store";
 import { Provider } from "react-redux";
 import { Toaster } from "sonner";
 import Footer from "@/widgets/ui/Footer";
+import { store } from "@/shared/lib/redux/store/store";
+import SearchModal from "@/features/modal/SearchModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,7 @@ export default function RootLayout({
       >
         <Provider store={store}>
           <Toaster />
+          <SearchModal />
           <div className="min-h-screen flex flex-col relative">
             <Header />
             <main className="flex-1">{children}</main>
