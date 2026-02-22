@@ -23,6 +23,15 @@ import Image from "next/image";
 const SearchModal = () => {
   const dispatch = useAppDispatch();
   const isOpen = useAppSelector((state) => state.ui.isSearchModalOpen);
+  const query = useAppSelector(selectSearchQuery);
+  const results = useAppSelector(selectLimitedSearchResults);
+  const total = useAppSelector(selectSearchResultsCount);
+  const debouncedQuery = useDebounce(query, 300);
+  const isTyping = query !== debouncedQuery;
+  const isEmptyQuery = query.trim() === "";
+  const isLoading = !isEmptyQuery && isTyping;
+  const hasResults = total > 0;
+  const isEmptyResult = !isLoading && !hasResults && debouncedQuery !== "";
 
   const handleClose = (clearQuery = true) => {
     dispatch(closeSearchModal());
@@ -31,22 +40,16 @@ const SearchModal = () => {
     }
   };
 
-  const query = useAppSelector(selectSearchQuery);
-  const results = useAppSelector(selectLimitedSearchResults);
-  const total = useAppSelector(selectSearchResultsCount);
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchQuery(e.target.value));
   };
-
-  const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
     dispatch(setDebouncedQuery(debouncedQuery));
   }, [debouncedQuery, dispatch]);
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose}>
+    <Modal isOpen={isOpen} onClose={handleClose} className="max-w-2xl">
       <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
         <div className="flex items-center gap-3 p-4 border-b border-gray-200">
           <CiSearch size={24} className="text-gray-400" />
@@ -70,23 +73,21 @@ const SearchModal = () => {
         </div>
 
         <div className="max-h-96 overflow-y-auto p-4">
-          {query === "" && (
+          {isEmptyQuery && (
             <p className="text-center text-gray-500">
               Start typing to search...
             </p>
           )}
 
-          {query !== "" && total === 0 && debouncedQuery !== query && (
-            <p className="text-center text-gray-500">Searching...</p>
-          )}
+          {isLoading && <div className=""></div>}
 
-          {query !== "" && total === 0 && (
+          {isEmptyResult && (
             <p className="text-center text-gray-500">
               There are no products matching the search criteria.
             </p>
           )}
 
-          {query !== "" && total > 0 && (
+          {hasResults && (
             <div className="flex flex-col mb-4">
               {results.map((product) => (
                 <Link
@@ -105,7 +106,6 @@ const SearchModal = () => {
                         alt={`${product.title} image`}
                         className="object-contain"
                         fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </div>
                     <p className="text-base font-medium truncate">

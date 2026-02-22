@@ -1,10 +1,12 @@
+import { API_URL } from "@/config";
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://192.168.0.112:3000",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: API_URL,
+  withCredentials: true,
+  // headers: {
+  //   "Content-Type": "application/json",
+  // },
 });
 
 // Interceptor для добавления токена

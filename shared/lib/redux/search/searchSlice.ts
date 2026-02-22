@@ -1,11 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+type Status = "idle" | "loading" | "succeeded" | "failed";
+
 interface SearchState {
+  status: Status;
   query: string;
   debouncedQuery: string;
 }
 
 const initialState: SearchState = {
+  status: "idle",
   query: "",
   debouncedQuery: "",
 };

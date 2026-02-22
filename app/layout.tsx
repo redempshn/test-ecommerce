@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import Footer from "@/widgets/ui/Footer";
 import { store } from "@/shared/lib/redux/store/store";
 import SearchModal from "@/features/modal/SearchModal";
+import LoginModal from "@/features/modal/LogInModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <Provider store={store}>
           <Toaster />
           <SearchModal />
+          <LoginModal />
           <div className="min-h-screen flex flex-col relative">
             <Header />
             <main className="flex-1">{children}</main>

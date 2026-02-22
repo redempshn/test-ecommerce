@@ -6,7 +6,7 @@ import { useAppSelector } from "@/shared/lib/hooks/reduxHooks";
 import { selectCartUniqueItemsCount } from "@/shared/lib/redux/cart/cart.selectors";
 import Badge from "@/shared/ui/Badge";
 import Search from "./Search";
-import Account from "./Account";
+import AccountTool from "./AccountTool";
 
 const HeaderTools = () => {
   const router = useRouter();
@@ -18,7 +18,7 @@ const HeaderTools = () => {
       <Search />
 
       {/* user profile */}
-      <Account />
+      <AccountTool />
 
       {/* Cart */}
       <div

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { fetchProductById, fetchProducts } from "./productThunk";
 import { productsAdapter } from "../adapter";
 
@@ -14,11 +14,7 @@ const initialState = productsAdapter.getInitialState({
 const productSlice = createSlice({
   name: "products",
   initialState,
-  reducers: {
-    searchProducts(state, action: PayloadAction<string>) {
-      state.entities;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchProducts.pending, (state) => {

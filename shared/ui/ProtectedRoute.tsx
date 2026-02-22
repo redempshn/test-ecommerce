@@ -1,6 +1,9 @@
+"use client";
+
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "../lib/hooks/reduxHooks";
+import { currentRole, currentStatus } from "../lib/redux/auth/auth.selectors";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,14 +12,15 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const router = useRouter();
-  const { status, role } = useAppSelector((state) => state.auth);
+  const status = useAppSelector(currentStatus);
+  const role = useAppSelector(currentRole);
 
   useEffect(() => {
     if (status === "idle") {
-      router.push("/login");
+      router.push("/signin");
     }
 
-    if (allowedRoles && !allowedRoles.includes(role)) {
+    if (allowedRoles && !allowedRoles.includes("guest")) {
       router.push("/"); // или 403 страница
     }
   }, [status, role, router, allowedRoles]);

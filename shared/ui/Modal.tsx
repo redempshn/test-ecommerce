@@ -7,9 +7,10 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  className: string;
 }
 
-const Modal = ({ isOpen, onClose, children }: ModalProps) => {
+const Modal = ({ isOpen, onClose, children, className }: ModalProps) => {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -38,7 +39,7 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
 
       {/* Content */}
       <div
-        className="relative z-10 w-full max-w-2xl mx-4"
+        className={`${className} relative z-10 w-full mx-4`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

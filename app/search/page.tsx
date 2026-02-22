@@ -1,11 +1,7 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
-import { useDebounce } from "@/shared/lib/hooks/useDebunce";
-import {
-  selectSearchedProducts,
-  selectSearchResultsCount,
-} from "@/shared/lib/redux/search/search.selector";
+import { selectSearchedProducts } from "@/shared/lib/redux/search/search.selector";
 import {
   setDebouncedQuery,
   setSearchQuery,

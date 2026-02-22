@@ -1,22 +1,23 @@
-import { API_URL } from "@/config";
 import axiosInstance from "@/shared/utils/axiosInstance";
+import { Role } from "@prisma/client";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-interface LoginPayload {
+export interface LoginPayload {
   email: string;
   password: string;
 }
 
-interface LoginResponse {
-  id: string;
-  email: string;
-  name: string;
-  role: "user" | "admin" | "guest";
-  token: string;
+export interface LoginResponse {
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    role: Role;
+  };
 }
 
-interface RegisterPayload {
+export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
@@ -26,25 +27,23 @@ export const loginUser = createAsyncThunk<
   LoginResponse,
   LoginPayload,
   { rejectValue: string }
->("auth/api/login", async ({ email, password }, { rejectWithValue }) => {
+>("auth/login", async ({ email, password }, { rejectWithValue }) => {
   try {
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-        withCredentials: true,
-      },
-    };
-
     const { data } = await axiosInstance.post(
-      `${API_URL}/api/user/login`,
+      "/api/auth/login",
       { email, password },
-      config,
+      { withCredentials: true },
     );
 
     return data;
-  } catch (error: unknown) {
+  } catch (error) {
     if (axios.isAxiosError(error)) {
-      return rejectWithValue(error.response?.data?.message ?? "Login failed");
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Login failed";
+      return rejectWithValue(message);
     }
 
     return rejectWithValue("Unexpected error");
@@ -57,23 +56,16 @@ export const restoreSession = createAsyncThunk<
   { rejectValue: string }
 >("auth/restoreSession", async (_, { rejectWithValue }) => {
   try {
-    const token = localStorage.getItem("userToken");
-
-    if (!token) {
-      return rejectWithValue("No token");
-    }
-
-    const { data } = await axios.get(`${API_URL}/api/user/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const { data } = await axiosInstance.get("/api/auth/me", {
+      withCredentials: true,
     });
 
     return data;
   } catch (error) {
-    localStorage.removeItem("userToken"); // чистим невалидный токен
     if (axios.isAxiosError(error)) {
-      return rejectWithValue(error.response?.data?.message ?? "Auth failed");
+      return rejectWithValue(
+        error.response?.data?.error ?? "Not authenticated",
+      );
     }
     return rejectWithValue("Unexpected error");
   }
@@ -83,11 +75,13 @@ export const logoutUser = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      await axiosInstance.post("/api/user/logout");
-      localStorage.removeItem("userToken");
+      await axiosInstance.post(
+        "/api/auth/logout",
+        {},
+        { withCredentials: true },
+      );
     } catch (error) {
       console.log(error);
-      localStorage.removeItem("userToken");
       return rejectWithValue("Logout failed");
     }
   },
@@ -99,19 +93,23 @@ export const registerUser = createAsyncThunk<
   { rejectValue: string }
 >("auth/register", async ({ name, email, password }, { rejectWithValue }) => {
   try {
-    const { data } = await axiosInstance.post("/api/user/register", {
+    const { data } = await axiosInstance.post("/api/auth/register", {
       name,
       email,
       password,
     });
 
-    localStorage.setItem("userToken", data.token);
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Registration failed",
-      );
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Registration failed";
+
+      console.error("Server response:", error.response?.data);
+      return rejectWithValue(message);
     }
     return rejectWithValue("Unexpected error");
   }
@@ -123,7 +121,7 @@ export const requestPasswordReset = createAsyncThunk<
   { rejectValue: string }
 >("auth/requestPasswordReset", async ({ email }, { rejectWithValue }) => {
   try {
-    await axiosInstance.post("/api/user/forgot-password", { email });
+    await axiosInstance.post("/api/auth/forgot-password", { email });
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return rejectWithValue(error.response?.data?.message ?? "Request failed");
@@ -138,7 +136,7 @@ export const resetPassword = createAsyncThunk<
   { rejectValue: string }
 >("auth/resetPassword", async ({ token, password }, { rejectWithValue }) => {
   try {
-    await axiosInstance.post("/api/user/reset-password", {
+    await axiosInstance.post("/api/auth/reset-password", {
       token,
       password,
     });
@@ -156,29 +154,13 @@ export const updateProfile = createAsyncThunk<
   { rejectValue: string }
 >("auth/updateProfile", async (updates, { rejectWithValue }) => {
   try {
-    const { data } = await axiosInstance.put("/api/user/profile", updates);
+    const { data } = await axiosInstance.put("/api/user/profile", updates, {
+      withCredentials: true,
+    });
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return rejectWithValue(error.response?.data?.message ?? "Update failed");
-    }
-    return rejectWithValue("Unexpected error");
-  }
-});
-
-export const refreshToken = createAsyncThunk<
-  { token: string },
-  void,
-  { rejectValue: string }
->("auth/refreshToken", async (_, { rejectWithValue }) => {
-  try {
-    const { data } = await axiosInstance.post("/api/user/refresh-token");
-    localStorage.setItem("userToken", data.token);
-    return data;
-  } catch (error) {
-    localStorage.removeItem("userToken");
-    if (axios.isAxiosError(error)) {
-      return rejectWithValue("Refresh failed");
     }
     return rejectWithValue("Unexpected error");
   }
