@@ -10,6 +10,7 @@ import { useAppDispatch } from "../lib/hooks/reduxHooks";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { closeLoginModal } from "../lib/redux/ui/uiSlice";
+import { toast } from "sonner";
 
 const SignInForm = () => {
   const dispatch = useAppDispatch();
@@ -31,6 +32,7 @@ const SignInForm = () => {
       console.log("Login success:", result);
       dispatch(closeLoginModal());
       router.push("/");
+      toast.success("You successfully signed in, Welcome!");
     } catch (error) {
       console.error("Login failed:", error);
       setServerError(error as string);
@@ -158,6 +160,7 @@ const SignInForm = () => {
             Don&apos;t have an account?{" "}
             <Link
               href={"/signup"}
+              onClick={() => dispatch(closeLoginModal())}
               className="text-blue-400 hover:text-blue-500 transition"
             >
               Sign up

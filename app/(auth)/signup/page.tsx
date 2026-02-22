@@ -9,6 +9,7 @@ import Divider from "@/shared/ui/Divider";
 import GuestRoute from "@/shared/ui/GuestRoute";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -22,14 +23,18 @@ const SignUpPage = () => {
 
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const onSubmit = async (data: RegisterPayload) => {
     try {
+      setServerError(null);
+
       await dispatch(registerUser(data)).unwrap();
 
       router.push("/signin");
     } catch (error) {
       console.error("sign up failed:", error);
+      setServerError(error as string);
     }
   };
 
@@ -64,12 +69,12 @@ const SignUpPage = () => {
                 className="flex flex-col mb-5"
                 onSubmit={handleSubmit(onSubmit)}
               >
-                {/* Общая ошибка от сервера
+                {/* Общая ошибка от сервера */}
                 {serverError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
                     <p className="text-sm text-red-600">{serverError}</p>
                   </div>
-                )} */}
+                )}
 
                 <div className="mb-5">
                   <label

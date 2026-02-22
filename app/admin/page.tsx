@@ -1,11 +1,4 @@
-import ProtectedRoute from "@/shared/ui/ProtectedRoute";
-import AdminPanel from "@/widgets/ui/AdminPanel";
-
 const AdminPage = () => {
-  return (
-    <ProtectedRoute allowedRoles={["admin"]}>
-      <AdminPanel />
-    </ProtectedRoute>
-  );
+  return <div className="w-full max-w-7xl mx-auto">ADMIN DASHBOARD.</div>;
 };
 export default AdminPage;
