@@ -4,6 +4,7 @@ import {
   logoutUser,
   registerUser,
   restoreSession,
+  updateProfile,
 } from "./authThunk";
 import { Role } from "@prisma/client";
 
@@ -97,6 +98,11 @@ const authSlice = createSlice({
       .addCase(restoreSession.rejected, (state) => {
         state.user = null;
         state.status = "idle";
+      })
+
+      // update user
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload.user;
       })
 
       // logout

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 import Divider from "./Divider";
 import { useForm } from "react-hook-form";
 import { LoginPayload, loginUser } from "../lib/redux/auth/authThunk";
@@ -11,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { closeLoginModal } from "../lib/redux/ui/uiSlice";
 import { toast } from "sonner";
+import GoogleButton from "./GoogleButton";
 
 const SignInForm = () => {
   const dispatch = useAppDispatch();
@@ -27,14 +27,12 @@ const SignInForm = () => {
   const onSubmit = (data: LoginPayload) => {
     try {
       setServerError(null);
-      const result = dispatch(loginUser(data)).unwrap();
+      dispatch(loginUser(data)).unwrap();
 
-      console.log("Login success:", result);
       dispatch(closeLoginModal());
       router.push("/");
       toast.success("You successfully signed in, Welcome!");
     } catch (error) {
-      console.error("Login failed:", error);
       setServerError(error as string);
     }
   };
@@ -46,13 +44,7 @@ const SignInForm = () => {
       </div>
       <div className="w-full px-5">
         <div className="flex gap-5">
-          {/* Google */}
-          <button className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition cursor-pointer">
-            <FcGoogle size={22} />
-            <span className="font-medium text-gray-700">
-              Continue with Google
-            </span>
-          </button>
+          <GoogleButton />
 
           <button className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
             <FaFacebook size={22} />
@@ -134,7 +126,6 @@ const SignInForm = () => {
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -148,7 +139,8 @@ const SignInForm = () => {
           <p className="text-sm text-gray-600 text-center mb-4">
             Forgot{" "}
             <Link
-              href={"/"}
+              href={"/forgot-password"}
+              onClick={() => dispatch(closeLoginModal())}
               className="text-blue-400 hover:text-blue-500 transition"
             >
               Password

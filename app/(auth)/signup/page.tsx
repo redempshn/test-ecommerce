@@ -6,13 +6,13 @@ import {
   registerUser,
 } from "@/shared/lib/redux/auth/authThunk";
 import Divider from "@/shared/ui/Divider";
+import GoogleButton from "@/shared/ui/GoogleButton";
 import GuestRoute from "@/shared/ui/GuestRoute";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 
 const SignUpPage = () => {
   const {
@@ -48,13 +48,7 @@ const SignUpPage = () => {
 
           <div className="w-full px-5">
             <div className="flex gap-5">
-              {/* Google */}
-              <button className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition cursor-pointer">
-                <FcGoogle size={22} />
-                <span className="font-medium text-gray-700">
-                  Sign up with Google
-                </span>
-              </button>
+              <GoogleButton />
 
               <button className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
                 <FaFacebook size={22} />

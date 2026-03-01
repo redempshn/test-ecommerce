@@ -4,7 +4,6 @@ import { prisma } from "@/shared/lib/prisma";
 
 interface JwtPayload {
   userId: number;
-  role: string;
 }
 
 export async function GET(req: NextRequest) {

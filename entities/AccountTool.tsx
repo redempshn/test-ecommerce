@@ -6,12 +6,15 @@ import {
 import { logoutUser } from "@/shared/lib/redux/auth/authThunk";
 import { openLoginModal } from "@/shared/lib/redux/ui/uiSlice";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { VscAccount } from "react-icons/vsc";
 
 const AccountTool = () => {
   const user = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
+  const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useAppDispatch();
@@ -100,6 +103,7 @@ const AccountTool = () => {
             onClick={() => {
               setIsOpen(false);
               dispatch(logoutUser());
+              router.push("/signin");
             }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
           >

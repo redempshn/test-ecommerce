@@ -124,25 +124,64 @@ export const requestPasswordReset = createAsyncThunk<
     await axiosInstance.post("/api/auth/forgot-password", { email });
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return rejectWithValue(error.response?.data?.message ?? "Request failed");
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to send email";
+
+      return rejectWithValue(message);
     }
     return rejectWithValue("Unexpected error");
   }
 });
 
+export const changePassword = createAsyncThunk<
+  void,
+  { oldPassword: string; newPassword: string },
+  { rejectValue: string }
+>(
+  "auth/changePassword",
+  async ({ oldPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      await axiosInstance.put("/api/user/change-password", {
+        oldPassword,
+        newPassword,
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const message =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Change password failed";
+
+        return rejectWithValue(message);
+      }
+      return rejectWithValue("Unexpected error");
+    }
+  },
+);
+
 export const resetPassword = createAsyncThunk<
   void,
-  { token: string; password: string },
+  { newPassword: string; token: string },
   { rejectValue: string }
->("auth/resetPassword", async ({ token, password }, { rejectWithValue }) => {
+>("auth/resetPassword", async ({ newPassword, token }, { rejectWithValue }) => {
   try {
     await axiosInstance.post("/api/auth/reset-password", {
+      newPassword,
       token,
-      password,
     });
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return rejectWithValue(error.response?.data?.message ?? "Reset failed");
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Reset password failed";
+
+      return rejectWithValue(message);
     }
     return rejectWithValue("Unexpected error");
   }
@@ -154,13 +193,19 @@ export const updateProfile = createAsyncThunk<
   { rejectValue: string }
 >("auth/updateProfile", async (updates, { rejectWithValue }) => {
   try {
-    const { data } = await axiosInstance.put("/api/user/profile", updates, {
+    const { data } = await axiosInstance.put("/api/user/update", updates, {
       withCredentials: true,
     });
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return rejectWithValue(error.response?.data?.message ?? "Update failed");
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Update user profile failed";
+
+      return rejectWithValue(message);
     }
     return rejectWithValue("Unexpected error");
   }

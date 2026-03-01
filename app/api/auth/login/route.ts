@@ -11,7 +11,7 @@ const loginSchema = z.object({
     .email("Invalid email format")
     .toLowerCase()
     .trim(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters").trim(),
 });
 
 export async function POST(req: NextRequest) {
@@ -37,6 +37,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { message: "Invalid credentials" },
         { status: 401 },
+      );
+    }
+
+    // если пароль отсутствует - пользователь зарегистрирован через OAuth
+    if (!user.password) {
+      throw new Error("User registered via OAuth provider");
+    }
+
+    if (user && user.password === null) {
+      return NextResponse.json(
+        {
+          message:
+            "This account was created with Google. Please sign in with Google.",
+          oauth_required: true,
+        },
+        { status: 400 },
       );
     }
 
