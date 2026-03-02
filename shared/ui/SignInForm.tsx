@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { FaFacebook } from "react-icons/fa";
 import Divider from "./Divider";
 import { useForm } from "react-hook-form";
 import { LoginPayload, loginUser } from "../lib/redux/auth/authThunk";
@@ -11,6 +10,7 @@ import { useState } from "react";
 import { closeLoginModal } from "../lib/redux/ui/uiSlice";
 import { toast } from "sonner";
 import GoogleButton from "./GoogleButton";
+import FacebookButton from "./FacebookButton";
 
 const SignInForm = () => {
   const dispatch = useAppDispatch();
@@ -45,11 +45,7 @@ const SignInForm = () => {
       <div className="w-full px-5">
         <div className="flex gap-5">
           <GoogleButton />
-
-          <button className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
-            <FaFacebook size={22} />
-            <span className="font-medium">Continue with Facebook</span>
-          </button>
+          <FacebookButton />
         </div>
       </div>
 

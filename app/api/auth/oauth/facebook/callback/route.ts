@@ -1,16 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { prisma } from "@/shared/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 import { Role } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
-interface GoogleUser {
+interface fbUser {
   id: string;
-  email: string;
-  verified_email: boolean;
   name: string;
-  given_name: string;
-  family_name: string;
-  picture?: string;
+  email: string;
 }
 
 export async function GET(req: NextRequest) {
@@ -44,28 +40,22 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-    const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-    const REDIRECT_URI = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/oauth/google/callback`;
+    const FACEBOOK_CLIENT_ID = process.env.FACEBOOK_CLIENT_ID;
+    const FACEBOOK_CLIENT_SECRET = process.env.FACEBOOK_CLIENT_SECRET;
 
-    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-      throw new Error("Google OAuth credentials not configured");
+    if (!FACEBOOK_CLIENT_ID || !FACEBOOK_CLIENT_SECRET) {
+      throw new Error("Facebook OAuth credentials not configured");
     }
 
-    // Обмен code на access_token
-    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        code,
-        client_id: GOOGLE_CLIENT_ID,
-        client_secret: GOOGLE_CLIENT_SECRET,
-        redirect_uri: REDIRECT_URI,
-        grant_type: "authorization_code",
-      }),
-    });
+    const tokenResponse = await fetch(
+      `https://graph.facebook.com/v19.0/oauth/access_token?` +
+        new URLSearchParams({
+          client_id: process.env.FACEBOOK_CLIENT_ID!,
+          client_secret: process.env.FACEBOOK_CLIENT_SECRET!,
+          redirect_uri: process.env.FACEBOOK_REDIRECT_URL!,
+          code,
+        }),
+    );
 
     if (!tokenResponse.ok) {
       throw new Error("Failed to exchange code for token");
@@ -73,38 +63,29 @@ export async function GET(req: NextRequest) {
 
     const { access_token } = await tokenResponse.json();
 
-    // Получение данных пользователя от Google
     const userResponse = await fetch(
-      "https://www.googleapis.com/oauth2/v2/userinfo",
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      },
+      `https://graph.facebook.com/me?` +
+        new URLSearchParams({
+          fields: "id,name,email",
+          access_token: access_token,
+        }),
     );
 
     if (!userResponse.ok) {
-      throw new Error("Failed to fetch user info from Google");
+      throw new Error("Failed to fetch user info from Facebook");
     }
 
-    const googleUser: GoogleUser = await userResponse.json();
-
-    // Проверка что email подтверждён
-    if (!googleUser.verified_email) {
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_API_URL}/signin?error=email_not_verified`,
-      );
-    }
+    const facebookUser: fbUser = await userResponse.json();
 
     // Поиск/создание пользователя в БД
     let user = await prisma.user.findUnique({
-      where: { googleId: googleUser.id },
+      where: { facebookId: facebookUser.id },
     });
 
     // Если нет по googleId, ищем по email
     if (!user) {
       user = await prisma.user.findUnique({
-        where: { email: googleUser.email },
+        where: { email: facebookUser.email },
       });
 
       // Если нашли по email, привязываем googleId
@@ -112,7 +93,7 @@ export async function GET(req: NextRequest) {
         user = await prisma.user.update({
           where: { id: user.id },
           data: {
-            googleId: googleUser.id,
+            facebookId: facebookUser.id,
           },
         });
       }
@@ -122,9 +103,9 @@ export async function GET(req: NextRequest) {
     if (!user) {
       user = await prisma.user.create({
         data: {
-          email: googleUser.email,
-          name: googleUser.name,
-          googleId: googleUser.id,
+          email: facebookUser.email,
+          name: facebookUser.name,
+          googleId: facebookUser.id,
           password: null, // OAuth пользователи без пароля
           role: Role.USER,
         },
@@ -149,12 +130,10 @@ export async function GET(req: NextRequest) {
       },
     );
 
-    // Создаём response с редиректом на главную
     const response = NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_API_URL}/`,
+      `${process.env.FACEBOOK_REDIRECT_URL}`,
     );
 
-    // Устанавливаем http-only cookie с токеном
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -163,12 +142,11 @@ export async function GET(req: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 дней
     });
 
-    // Удаляем временную oauth_state cookie
     response.cookies.delete("oauth_state");
 
     return response;
   } catch (error) {
-    console.error("Google OAuth callback error:", error);
+    console.error("Facebook OAuth callback error:", error);
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_API_URL}/signin?error=oauth_failed`,
     );
