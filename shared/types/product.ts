@@ -1,52 +1,49 @@
 export interface Product {
   id: number;
   title: string;
-  description: string;
-  category: string;
+  slug: string;
   price: number;
-  discountPercentage: number;
-  rating: number;
   stock: number;
-
-  tags: string[];
-  brand: string;
-  sku: string;
-  weight: number;
-
-  dimensions: Dimensions;
-
-  warrantyInformation: string;
-  shippingInformation: string;
-  availabilityStatus: string;
-
-  reviews: Review[];
-
-  returnPolicy: string;
-  minimumOrderQuantity: number;
-
-  images: string;
-  thumbnail: string;
-
-  meta: Meta;
-}
-
-export interface Review {
-  rating: number;
-  comment: string;
-  date: string; // ISO string
-  reviewerName: string;
-  reviewerEmail: string;
-}
-
-export interface Dimensions {
-  width: number;
-  height: number;
-  depth: number;
-}
-
-export interface Meta {
+  status: "DRAFT" | "ACTIVE" | "INACTIVE";
+  categoryId: number;
+  brandId: number;
   createdAt: string;
   updatedAt: string;
-  barcode: string;
-  qrCode: string;
+
+  content: Content;
+  attributes: Attributes[];
+  images: Images[];
+  category: Category;
+  brand: Brand;
+}
+
+export interface Content {
+  id: number;
+  productId: number;
+  descriptionHtml: string;
+}
+
+export interface Attributes {
+  id: number;
+  productId: number;
+  name: string;
+  value: string;
+}
+
+export interface Images {
+  id: number;
+  productId: number;
+  url: string;
+  position: number;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  parentId: number | null;
+}
+
+export interface Brand {
+  id: number;
+  name: string;
 }

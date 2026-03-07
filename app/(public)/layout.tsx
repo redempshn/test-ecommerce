@@ -1,0 +1,30 @@
+"use client";
+
+import "./globals.css";
+import Header from "@/widgets/ui/Header";
+import { Toaster } from "sonner";
+import Footer from "@/widgets/ui/Footer";
+import SearchModal from "@/features/modal/SearchModal";
+import LoginModal from "@/features/modal/LogInModal";
+import { AuthProvider } from "@/shared/ui/AuthProvider";
+
+export default function PublicLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <div>
+      <AuthProvider>
+        <Toaster />
+        <SearchModal />
+        <LoginModal />
+        <div className="min-h-screen flex flex-col relative">
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+      </AuthProvider>
+    </div>
+  );
+}

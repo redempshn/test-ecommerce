@@ -8,6 +8,7 @@ import { openLoginModal } from "@/shared/lib/redux/ui/uiSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { LuLayoutDashboard } from "react-icons/lu";
 import { VscAccount } from "react-icons/vsc";
 
 const AccountTool = () => {
@@ -19,9 +20,6 @@ const AccountTool = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useAppDispatch();
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  console.log(user);
-  console.log(isAuthenticated);
 
   // Закрытие при клике вне компонента
   useEffect(() => {
@@ -61,6 +59,17 @@ const AccountTool = () => {
       {/* Dropdown */}
       {isOpen && isAuthenticated && user && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+          {user.role === "ADMIN" && (
+            <Link
+              href="/admin"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <LuLayoutDashboard size={16} className="text-gray-500" />
+              <span>Admin panel</span>
+            </Link>
+          )}
+
           {/* Account */}
           <Link
             href="/account"

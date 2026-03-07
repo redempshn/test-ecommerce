@@ -6,6 +6,9 @@ import sortReducer from "../sort/sortSlice";
 import authReducer from "../auth/authSlice";
 import uiReducer from "../ui/uiSlice";
 import searchReducer from "../search/searchSlice";
+import adminProductsReducer from "../admin/adminProductSlice";
+import categoriesReducer from "../categories/categoriesSlice";
+import brandsReducer from "../brands/brandsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +19,9 @@ export const store = configureStore({
     auth: authReducer,
     ui: uiReducer,
     search: searchReducer,
+    productsadmin: adminProductsReducer,
+    categories: categoriesReducer,
+    brands: brandsReducer,
   },
 });
 

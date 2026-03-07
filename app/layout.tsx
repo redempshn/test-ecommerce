@@ -1,15 +1,5 @@
-"use client";
-
+import { Providers } from "@/entities/Providers";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import Header from "@/widgets/ui/Header";
-import { Provider } from "react-redux";
-import { Toaster } from "sonner";
-import Footer from "@/widgets/ui/Footer";
-import { store } from "@/shared/lib/redux/store/store";
-import SearchModal from "@/features/modal/SearchModal";
-import LoginModal from "@/features/modal/LogInModal";
-import { AuthProvider } from "@/shared/ui/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,22 +17,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
-        <Provider store={store}>
-          <AuthProvider>
-            <Toaster />
-            <SearchModal />
-            <LoginModal />
-            <div className="min-h-screen flex flex-col relative">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-          </AuthProvider>
-        </Provider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
