@@ -1,43 +1,43 @@
-import { createSelector } from "@reduxjs/toolkit";
-import { selectFilteredProducts } from "../products/products.selector";
-import { RootState } from "../store/store";
+// import { createSelector } from "@reduxjs/toolkit";
 
-export const selectedSortBy = (state: RootState) => state.sort.sortBy;
+// import { RootState } from "../store/store";
 
-export const selectSortedProducts = createSelector(
-  [selectFilteredProducts, selectedSortBy],
-  (products, sortBy) => {
-    const sortedProducts = [...products];
+// export const selectedSortBy = (state: RootState) => state.sort.sortBy;
 
-    switch (sortBy) {
-      case "popular":
-        // Сортировка по популярности
-        return sortedProducts.sort(
-          (a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0),
-        );
+// export const selectSortedProducts = createSelector(
+//   [selectFilteredProducts, selectedSortBy],
+//   (products, sortBy) => {
+//     const sortedProducts = [...products];
 
-      case "ratedBy":
-        // Сортировка по рейтингу (предполагаем есть поле rating)
-        return sortedProducts.sort((a, b) => b.rating - a.rating);
+//     switch (sortBy) {
+//       case "popular":
+//         // Сортировка по популярности
+//         return sortedProducts.sort(
+//           (a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0),
+//         );
 
-      case "alphabetAsc":
-        // От A до Z
-        return sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
+//       case "ratedBy":
+//         // Сортировка по рейтингу (предполагаем есть поле rating)
+//         return sortedProducts.sort((a, b) => b.rating - a.rating);
 
-      case "alphabetDesc":
-        // От Z до A
-        return sortedProducts.sort((a, b) => b.title.localeCompare(a.title));
+//       case "alphabetAsc":
+//         // От A до Z
+//         return sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
 
-      case "priceDesc":
-        // Сначала дорогие
-        return sortedProducts.sort((a, b) => b.price - a.price);
+//       case "alphabetDesc":
+//         // От Z до A
+//         return sortedProducts.sort((a, b) => b.title.localeCompare(a.title));
 
-      case "priceAsc":
-        // Сначала дешевые
-        return sortedProducts.sort((a, b) => a.price - b.price);
+//       case "priceDesc":
+//         // Сначала дорогие
+//         return sortedProducts.sort((a, b) => b.price - a.price);
 
-      default:
-        return sortedProducts;
-    }
-  },
-);
+//       case "priceAsc":
+//         // Сначала дешевые
+//         return sortedProducts.sort((a, b) => a.price - b.price);
+
+//       default:
+//         return sortedProducts;
+//     }
+//   },
+// );

@@ -29,15 +29,14 @@ export async function GET(req: NextRequest) {
     if (search) {
       where.OR = [
         { title: { contains: search, mode: "insensitive" } },
-        { brand: { name: { contains: search, mode: "insensitive" } } }, // через relation
+        { brand: { name: { contains: search, mode: "insensitive" } } },
       ];
     }
 
     if (category) {
-      where.categoryId = Number(category); // передаём id числом
+      where.categoryId = Number(category);
     }
 
-    // status — это enum ProductStatus, фильтруем напрямую
     if (status && status !== "all") {
       where.status = status as ProductStatus;
     }
@@ -51,7 +50,9 @@ export async function GET(req: NextRequest) {
       };
     }
 
-    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" };
+    let orderBy: Prisma.ProductOrderByWithRelationInput = {
+      createdAt: "desc",
+    };
 
     if (sort === "price_asc") {
       orderBy = { price: "asc" };
@@ -63,6 +64,12 @@ export async function GET(req: NextRequest) {
       orderBy = { title: "desc" };
     } else if (sort === "stock_asc") {
       orderBy = { stock: "asc" };
+    } else if (sort === "stock_desc") {
+      orderBy = { stock: "desc" };
+    } else if (sort === "created_asc") {
+      orderBy = { createdAt: "asc" };
+    } else if (sort === "created_desc") {
+      orderBy = { createdAt: "desc" };
     }
 
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
@@ -85,6 +92,8 @@ export async function GET(req: NextRequest) {
         category: true,
         brand: true,
         images: true,
+        attributes: true,
+        content: true,
       },
     });
 
@@ -100,7 +109,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Get product error:", error);
     return NextResponse.json(
-      { message: "Somethinh went wrong during getting products" },
+      { message: "Something went wrong" },
       { status: 500 },
     );
   }

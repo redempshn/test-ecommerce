@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   createProduct,
   deleteProduct,
+  fetchAdminProductById,
   fetchAdminProducts,
   updateProduct,
 } from "./AdminProductsThunk";
@@ -19,7 +20,7 @@ const initialState = productsAdapter.getInitialState({
 });
 
 const adminProductsSlice = createSlice({
-  name: "productsadmin",
+  name: "adminProducts",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -85,6 +86,19 @@ const adminProductsSlice = createSlice({
       .addCase(fetchAdminProducts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Failed to fetch products";
+      })
+
+      .addCase(fetchAdminProductById.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchAdminProductById.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        productsAdapter.setOne(state, action.payload.product);
+      })
+      .addCase(fetchAdminProductById.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Failed to fetch product";
       });
   },
 });

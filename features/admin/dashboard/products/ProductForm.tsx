@@ -1,24 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import * as z from "zod";
+import { useEffect } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
-  Plus,
-  Trash2,
   Image as ImageIcon,
-  Upload,
-  X,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
   Bold,
   Italic,
   List,
   Heading,
   Link as LinkIcon,
-  Star,
 } from "lucide-react";
 import SectionCard from "@/features/admin/dashboard/products/SectionCard";
 import InputGroup from "@/features/admin/dashboard/products/InputGroup";
@@ -27,6 +19,7 @@ import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
 import ProductImageUploader from "./ProductImageUploader";
 import {
   createProduct,
+  fetchAdminProductById,
   updateProduct,
 } from "@/shared/lib/redux/admin/AdminProductsThunk";
 import {
@@ -37,6 +30,8 @@ import { selectAllCategories } from "@/shared/lib/redux/categories/categoriesSli
 import { selectAllbrands } from "@/shared/lib/redux/brands/brandsSlice";
 import { fetchCategories } from "@/shared/lib/redux/categories/categoriesThunk";
 import { fetchBrands } from "@/shared/lib/redux/brands/brandsThunk";
+import { selectAdminProductById } from "@/shared/lib/redux/admin/AdminProducts.selectors";
+import { ProductAttributes } from "@/entities/ProductAttributes";
 
 interface ProductFormProps {
   mode: "create" | "edit";
@@ -46,24 +41,14 @@ interface ProductFormProps {
 
 const ProductForm = ({ mode, productId, onSuccess }: ProductFormProps) => {
   const dispatch = useAppDispatch();
-
   const categories = useAppSelector(selectAllCategories);
   const brands = useAppSelector(selectAllbrands);
 
   const product = useAppSelector((state) =>
-    mode === "edit" ? selectProductById(state, productId) : null,
+    mode === "edit" && productId
+      ? selectAdminProductById(state, productId)
+      : null,
   );
-
-  useEffect(() => {
-    dispatch(fetchCategories());
-    dispatch(fetchBrands());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (mode === "edit" && productId) {
-      dispatch(fetchProductById(productId));
-    }
-  }, [mode, productId, dispatch]);
 
   const emptyDefaults = {
     title: "",
@@ -79,6 +64,7 @@ const ProductForm = ({ mode, productId, onSuccess }: ProductFormProps) => {
   };
 
   const {
+    control,
     reset,
     register,
     setValue,
@@ -90,6 +76,21 @@ const ProductForm = ({ mode, productId, onSuccess }: ProductFormProps) => {
     defaultValues: emptyDefaults,
   });
 
+  console.log(product);
+
+  const images = watch("images");
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+    dispatch(fetchBrands());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (mode === "edit" && productId) {
+      dispatch(fetchAdminProductById({ id: productId }));
+    }
+  }, [mode, productId, dispatch]);
+
   useEffect(() => {
     if (mode === "edit" && product) {
       reset({
@@ -100,22 +101,21 @@ const ProductForm = ({ mode, productId, onSuccess }: ProductFormProps) => {
         status: product.status,
         categoryId: product.categoryId,
         brandId: product.brandId,
-        descriptionHtml: product.content.descriptionHtml,
-        attributes: product.attributes,
-        images: product.images,
+        descriptionHtml: product.content?.descriptionHtml ?? "",
+        attributes: product.attributes ?? [],
+        images: product.images ?? [],
       });
     }
   }, [product, mode, reset]);
 
-  const images = watch("images");
-
-  // 4. Submit логика
   const onSubmit = async (data: ProductFormData) => {
     console.log("onSubmit вызван", data);
+    console.log("mode:", mode, "productId:", productId);
     try {
       if (mode === "create") {
         await dispatch(createProduct(data)).unwrap();
       } else if (productId) {
+        console.log("продукт обновлен", data);
         await dispatch(updateProduct({ id: productId, data })).unwrap();
       }
       onSuccess?.();
@@ -123,8 +123,6 @@ const ProductForm = ({ mode, productId, onSuccess }: ProductFormProps) => {
       console.error("Submit failed:", error);
     }
   };
-
-  const [seoExpanded, setSeoExpanded] = useState(false);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-8">
@@ -217,7 +215,12 @@ const ProductForm = ({ mode, productId, onSuccess }: ProductFormProps) => {
           </InputGroup>
 
           <InputGroup label="Category">
-            <select {...register("categoryId", { valueAsNumber: true })}>
+            <select
+              {...register("categoryId", { valueAsNumber: true })}
+              className={`w-full px-4 py-2 rounded-lg border ${
+                errors.categoryId ? "border-red-500" : "border-slate-200"
+              } bg-white focus:ring-1 focus:black outline-none`}
+            >
               <option value="">Select Category</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -233,7 +236,10 @@ const ProductForm = ({ mode, productId, onSuccess }: ProductFormProps) => {
           </InputGroup>
 
           <InputGroup label="Brand (Optional)">
-            <select {...register("brandId", { valueAsNumber: true })}>
+            <select
+              {...register("brandId", { valueAsNumber: true })}
+              className="w-full px-4 py-2 rounded-lg border border-slate-200 bg-white focus:ring-1 focus:black outline-none"
+            >
               <option value="">No Brand</option>
               {brands.map((brand) => (
                 <option key={brand.id} value={brand.id}>
@@ -279,80 +285,20 @@ const ProductForm = ({ mode, productId, onSuccess }: ProductFormProps) => {
       </SectionCard>
 
       {/* Product Attributes */}
-      <SectionCard
-        title="Product Attributes"
-        extra={
-          <button className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-tight cursor-pointer">
-            <Plus size={14} /> Add Attribute
-          </button>
-        }
-      >
-        <div className="space-y-3"></div>
-      </SectionCard>
-
-      {/* SEO Section */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-12">
-        <button
-          onClick={() => setSeoExpanded(!seoExpanded)}
-          className="w-full px-6 py-4 flex items-center justify-between bg-slate-50/50"
-        >
-          <h2 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
-            Search Engine Optimization
-          </h2>
-          {seoExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </button>
-
-        {seoExpanded && (
-          <div className="p-6 space-y-6">
-            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100 max-w-2xl">
-              <p className="text-xs text-blue-800 mb-1 flex items-center gap-1">
-                google.com/search/product <ExternalLink size={10} />
-              </p>
-              <h3 className="text-lg text-blue-700 font-medium leading-tight mb-1">
-                Product Title
-              </h3>
-              <p className="text-sm text-slate-600 line-clamp-2">
-                Add a meta description to see how this product will appear in
-                search engine results.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-              <InputGroup label="Meta Title">
-                <input
-                  type="text"
-                  name="seoTitle"
-                  value=""
-                  placeholder="SEO optimized title"
-                  className="w-full px-4 py-2 rounded-lg border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </InputGroup>
-              <InputGroup label="Meta Description">
-                <textarea
-                  rows={3}
-                  name="seoDescription"
-                  value=""
-                  placeholder="Short summary for search results..."
-                  className="w-full px-4 py-2 rounded-lg border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </InputGroup>
-            </div>
-          </div>
-        )}
-      </div>
+      <ProductAttributes control={control} errors={errors} />
 
       <div className="flex justify-end gap-4">
         <button
           type="button"
           onClick={onSuccess}
-          className="px-6 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+          className="cursor-pointer px-6 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="cursor-pointer px-6 py-2 bg-blue-500 text-white rounded-lg hover:blue-400 disabled:opacity-50"
+          className="cursor-pointer px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-gray-200 hover:text-black disabled:opacity-50 transition"
         >
           {isSubmitting
             ? "Saving..."

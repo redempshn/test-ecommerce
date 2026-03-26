@@ -14,6 +14,7 @@ interface DrawerProps {
   onToggle: () => void;
   currentStatus: boolean;
 }
+
 const Drawer = ({ onToggle, currentStatus }: DrawerProps) => {
   const hasActiveFilters = useAppSelector(selectHasActiveFilters);
 

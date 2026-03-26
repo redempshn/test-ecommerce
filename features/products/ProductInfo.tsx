@@ -29,7 +29,7 @@ const ProductInfo = ({ product }: ProductDetailsProps) => {
 
         <div className="flex items-center mb-4 font-light  self-start p-1 rounded-lg bg-[#f6f8fd]">
           <FaStar size={20} className="fill-blue-500 mr-1" />
-          <span className="text-base">{product.rating}</span>
+          {/* <span className="text-base">{product.rating}</span> */}
           <GoDotFill size={10} className="mx-2" />
           <Link
             href={"/"}

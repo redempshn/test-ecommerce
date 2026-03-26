@@ -1,14 +1,7 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
-import {
-  deleteBrands,
-  toggleBrand,
-} from "@/shared/lib/redux/filters/filtersSlice";
-import {
-  selectAllBrands,
-  selectSelectedBrands,
-} from "@/shared/lib/redux/products/products.selector";
+
 import Accordion from "@/shared/ui/Accordion";
 import Checkbox from "@/shared/ui/CheckBox";
 import { useState } from "react";
@@ -16,13 +9,10 @@ import { useState } from "react";
 const FilterBrand = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const brands = useAppSelector(selectAllBrands);
-  const selectedBrands = useAppSelector(selectSelectedBrands);
   const dispatch = useAppDispatch();
+  const { filters } = useAppSelector((state) => state.products);
 
-  const handleDeleteBrands = () => {
-    dispatch(deleteBrands());
-  };
+  const handleDeleteBrands = () => {};
 
   const toggleAccordion = () => {
     setIsOpen(!isOpen);
@@ -32,12 +22,12 @@ const FilterBrand = () => {
     <div className={isOpen ? "w-full" : "border-b border-gray-200"}>
       <Accordion
         isOpen={isOpen}
-        showDetails={selectedBrands.length}
+        showDetails={}
         toggleAccordion={toggleAccordion}
         onDelete={handleDeleteBrands}
         title="Brands"
       >
-        {brands.map(({ brand, count }) => {
+        {filters.map(({ name, values }) => {
           const isChecked = selectedBrands.includes(brand);
 
           return (

@@ -1,49 +1,154 @@
 import { Product } from "@/shared/types/product";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import axiosInstance from "@/shared/utils/axiosInstance";
 
-type ProductsResponse = {
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { ProductResponse } from "../admin/AdminProductsThunk";
+
+export interface ProductsResponse {
   products: Product[];
-  total: number;
-  skip: number;
-  limit: number;
-};
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ProductParams {
+  attributes?: string[];
+  slug?: string;
+  created?: string;
+  search?: string;
+  category?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}
 
 export const fetchProducts = createAsyncThunk<
-  Product[],
-  void,
+  ProductsResponse,
+  ProductParams,
   { rejectValue: string }
->("products/fetchProducts", async (_, thunkAPI) => {
+>("products/fetchProducts", async (params = {}, { rejectWithValue }) => {
   try {
-    const response = await fetch("https://dummyjson.com/products");
+    const queryParams = new URLSearchParams();
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch products");
+    if (params.search) {
+      queryParams.append("search", params.search);
     }
 
-    const data: ProductsResponse = await response.json();
-    return data.products;
+    if (params.created) {
+      queryParams.append("created", params.created);
+    }
+
+    if (params.slug) {
+      queryParams.append("slug", params.slug);
+    }
+
+    if (params.category) {
+      queryParams.append("category", params.category);
+    }
+
+    if (params.sort) {
+      queryParams.append("sort", params.sort);
+    }
+
+    if (params.page !== undefined) {
+      queryParams.append("page", params.page.toString());
+    }
+
+    if (params.limit !== undefined) {
+      queryParams.append("limit", params.limit.toString());
+    }
+
+    if (params.attributes && params.attributes.length > 0) {
+      params.attributes.forEach((attr) => {
+        queryParams.append("attributes", attr);
+      });
+    }
+
+    const url = `/api/products${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+
+    const { data } = await axiosInstance.get<ProductsResponse>(url);
+
+    return data;
   } catch (error) {
-    console.log(error);
-    return thunkAPI.rejectWithValue("Network error");
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to fetch products";
+      return rejectWithValue(message);
+    }
+
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+
+    return rejectWithValue("Unexpected error occurred");
   }
 });
 
-export const fetchProductById = createAsyncThunk<
-  Product,
-  number,
+export const fetchProductBySlug = createAsyncThunk<
+  ProductResponse,
+  { slug: string },
   { rejectValue: string }
->("products/fetchProductById", async (productId, thunkAPI) => {
+>("products/fetchProductBySlug", async ({ slug }, { rejectWithValue }) => {
   try {
-    const response = await fetch(`https://dummyjson.com/products/${productId}`);
+    const { data } = await axiosInstance.get<ProductResponse>(
+      `/api/products/${slug}`,
+    );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch product");
-    }
-
-    const data: Product = await response.json();
     return data;
   } catch (error) {
-    console.log(error);
-    return thunkAPI.rejectWithValue("Network error");
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to fetch product by id";
+      return rejectWithValue(message);
+    }
+
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+
+    return rejectWithValue("Unexpected error occurred");
+  }
+});
+
+interface ProductFiltersResponse {
+  filters: {
+    name: string;
+    values: string[];
+  }[];
+}
+
+export const fetchProductFilters = createAsyncThunk<
+  ProductFiltersResponse,
+  { slug: string },
+  { rejectValue: string }
+>("products/fetchProductFilters", async ({ slug }, { rejectWithValue }) => {
+  try {
+    const url = `/api/products/filters?slug=${slug}`;
+
+    const { data } = await axiosInstance.get<ProductFiltersResponse>(url);
+
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to fetch product filters";
+      return rejectWithValue(message);
+    }
+
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+
+    return rejectWithValue("Unexpected error occurred");
   }
 });

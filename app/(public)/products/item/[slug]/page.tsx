@@ -8,37 +8,28 @@ import ProductInfo from "@/features/products/ProductInfo";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
-import {
-  selectProductById,
-  selectProductsStatus,
-} from "@/shared/lib/redux/products/products.selector";
-import { fetchProductById } from "@/shared/lib/redux/products/productThunk";
-import Reviews from "@/features/products/Reviews";
+import { fetchProductBySlug } from "@/shared/lib/redux/products/productThunk";
+// import Reviews from "@/features/products/Reviews";
+import { selectProductBySlug } from "@/shared/lib/redux/products/products.selector";
 
 interface ProductProps {
-  params: Promise<{ id: number }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default function ProductPage({ params }: ProductProps) {
-  const { id } = use(params);
+  const { slug } = use(params);
 
   const router = useRouter();
-
-  const productId = id;
   const dispatch = useAppDispatch();
+  const { status } = useAppSelector((state) => state.products);
 
-  const productStatus = useAppSelector(selectProductsStatus);
-  const product = useAppSelector((state) =>
-    selectProductById(state, productId),
-  );
+  const product = useAppSelector((state) => selectProductBySlug(state, slug));
 
   useEffect(() => {
-    if (productStatus === "idle") {
-      dispatch(fetchProductById(id));
-    }
-  }, [dispatch, productStatus, id]);
+    dispatch(fetchProductBySlug({ slug }));
+  }, [dispatch, slug]);
 
-  if (status === "idle" || status === "loading") {
+  if (status === "loading" || !product) {
     return <ProductDetailsSkeleton />;
   }
 
@@ -61,7 +52,7 @@ export default function ProductPage({ params }: ProductProps) {
         <div className="flex justify-between gap-4">
           <div className="basis-3/5 bg-[#f6f8fd] rounded-2xl">
             <Carousel product={product} />
-            <Reviews product={product} />
+            {/* <Reviews product={product} /> */}
           </div>
           <div className="basis-2/5">
             <ProductInfo product={product} />

@@ -1,6 +1,6 @@
 "use client";
 import ProductForm from "@/features/admin/dashboard/products/ProductForm";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { use } from "react";
 
 interface EditProductPageProps {
@@ -17,9 +17,7 @@ const ProductEditPage = ({ params }: EditProductPageProps) => {
       <div className="max-w-5xl mx-auto">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Create New Product
-            </h1>
+            <h1 className="text-2xl font-bold text-slate-900">Edit product</h1>
           </div>
         </header>
         <ProductForm

@@ -1,6 +1,6 @@
-import { ProductFormSchema } from "@/features/admin/dashboard/products/ProductForm";
 import { Product } from "@/shared/types/product";
 import axiosInstance from "@/shared/utils/axiosInstance";
+import { ProductFormSchema } from "@/shared/validations/product.schema";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import * as z from "zod";
@@ -133,6 +133,10 @@ export const fetchAdminProducts = createAsyncThunk<
       queryParams.append("sort", params.sort);
     }
 
+    if (params.status) {
+      queryParams.append("status", params.status);
+    }
+
     if (params.page) {
       queryParams.append("page", params.page.toString());
     }
@@ -156,6 +160,34 @@ export const fetchAdminProducts = createAsyncThunk<
         error.response?.data?.message ||
         error.response?.data?.error ||
         "Failed to fetch products";
+      return rejectWithValue(message);
+    }
+
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+
+    return rejectWithValue("Unexpected error occurred");
+  }
+});
+
+export const fetchAdminProductById = createAsyncThunk<
+  ProductResponse,
+  { id: number },
+  { rejectValue: string }
+>("admin/products/fetchById", async ({ id }, { rejectWithValue }) => {
+  try {
+    const { data } = await axiosInstance.get<ProductResponse>(
+      `/api/admin/products/${id}`,
+    );
+
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to fetch product by id";
       return rejectWithValue(message);
     }
 

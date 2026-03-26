@@ -1,63 +1,49 @@
-import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
-import { selectActiveFilters } from "@/shared/lib/redux/filters/filters.selector";
-import {
-  resetFilters,
-  resetPriceRange,
-  toggleBrand,
-  toggleCategory,
-} from "@/shared/lib/redux/filters/filtersSlice";
+"use client";
+
+import { useFilterParams } from "@/shared/lib/hooks/useFilterParams";
+import { useParams } from "next/navigation";
 import { IoClose } from "react-icons/io5";
 
 const Activefilters = () => {
-  const dispatch = useAppDispatch();
-  const activeFilters = useAppSelector(selectActiveFilters);
+  const { slug } = useParams();
+  const slugString = Array.isArray(slug) ? slug[0] : (slug ?? "");
 
-  const handleClearSelectedFilters = () => {
-    dispatch(resetFilters());
-  };
-
-  // Удаление конкретного фильтра
-  const handleRemoveFilter = (filter: (typeof activeFilters)[0]) => {
-    switch (filter.type) {
-      case "category":
-        dispatch(toggleCategory(filter.value));
-        break;
-      case "brand":
-        dispatch(toggleBrand(filter.value));
-        break;
-      case "price":
-        dispatch(resetPriceRange());
-        break;
-    }
-  };
+  const { toggleFilter, activeAttributes } = useFilterParams(slugString);
 
   return (
-    <div className="w-full border-b border-gray-200 flex flex-col px-4 pt-4">
-      <div className="flex justify-between items-center mb-4">
-        <p className="">You choose</p>
-        <button
-          onClick={handleClearSelectedFilters}
-          className="underline text-base text-gray-500 mr-3 cursor-pointer"
-        >
-          clear all
-        </button>
-      </div>
-      <div className="flex items-center flex-wrap">
-        {activeFilters.map((filter) => (
-          <div
-            key={filter.id}
-            className="px-3 py-1 border border-gray-300 rounded-2xl flex items-center mr-2 mb-2"
-          >
-            <span className="text-md text-gray-500">{filter.label}</span>
-            <button
-              onClick={() => handleRemoveFilter(filter)}
-              className="underline text-base text-gray-500 ml-1 cursor-pointer"
+    <div className="w-full border-t border-b border-gray-200 flex items-center py-4">
+      <p className="">You choose:</p>
+
+      <div className="flex items-center flex-wrap px-4">
+        {activeAttributes.map((attr) => {
+          const split = attr.split(":");
+
+          const name = split[0];
+          const value = split[1];
+
+          return (
+            <div
+              key={attr}
+              className="py-1 px-2 bg-gray-200 rounded-2xl flex items-center border border-gray-200 hover:border hover:border-gray-300"
             >
-              <IoClose size={20} />
-            </button>
-          </div>
-        ))}
+              <span className="text-md">{value}</span>
+              <button
+                onClick={() => toggleFilter(name, value)}
+                className="underline text-base ml-1 cursor-pointer"
+              >
+                <IoClose size={20} />
+              </button>
+            </div>
+          );
+        })}
       </div>
+
+      <button
+        onClick={() => {}}
+        className="underline text-base mr-5 cursor-pointer"
+      >
+        clear all
+      </button>
     </div>
   );
 };

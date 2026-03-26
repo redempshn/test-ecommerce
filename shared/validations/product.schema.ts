@@ -6,8 +6,8 @@ export const ProductFormSchema = z.object({
   price: z.number().positive(),
   stock: z.number().int().min(0),
   status: z.enum(["DRAFT", "ACTIVE", "INACTIVE"]),
-  categoryId: z.number().int(),
-  brandId: z.number().int(),
+  categoryId: z.number().int().positive(),
+  brandId: z.number().int().positive().nullable().optional(),
   descriptionHtml: z.string(),
   attributes: z.array(
     z.object({ name: z.string().min(1), value: z.string().min(1) }),

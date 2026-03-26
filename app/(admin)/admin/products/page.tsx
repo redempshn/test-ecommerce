@@ -1,16 +1,10 @@
 "use client";
-
-import { IoSearchOutline } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { GoPackage } from "react-icons/go";
-import { FaChevronDown } from "react-icons/fa";
 import { FaChevronLeft } from "react-icons/fa";
 import { FaChevronRight } from "react-icons/fa";
-import { FaChevronUp } from "react-icons/fa";
-import Link from "next/link";
+
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
 import {
   deleteProduct,
@@ -18,27 +12,42 @@ import {
 } from "@/shared/lib/redux/admin/AdminProductsThunk";
 import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { selectAllProducts } from "@/shared/lib/redux/products/products.selector";
+import { selectAdminAllProducts } from "@/shared/lib/redux/admin/AdminProducts.selectors";
+import Loader from "@/shared/ui/Loader";
+import { selectAllCategories } from "@/shared/lib/redux/categories/categoriesSlice";
+import { fetchCategories } from "@/shared/lib/redux/categories/categoriesThunk";
 
 export default function AdminProductsPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const products = useAppSelector(selectAllProducts);
+  const categories = useAppSelector(selectAllCategories);
+
+  const products = useAppSelector(selectAdminAllProducts);
+
   const { status, error, pagination } = useAppSelector(
-    (state) => state.products,
+    (state) => state.adminProducts,
   );
 
-  // Получаем параметры из URL
   const search = searchParams.get("search") || undefined;
   const category = searchParams.get("category") || undefined;
-  const status_filter = (searchParams.get("status") as any) || undefined;
+  const status_filter =
+    (searchParams.get("status") as
+      | "DRAFT"
+      | "ACTIVE"
+      | "INACTIVE"
+      | "all"
+      | undefined) || undefined;
   const sort = searchParams.get("sort") || undefined;
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "10");
+  const created = searchParams.get("created") || undefined;
 
-  // Загружаем продукты при изменении параметров
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
   useEffect(() => {
     dispatch(
       fetchAdminProducts({
@@ -48,11 +57,11 @@ export default function AdminProductsPage() {
         sort,
         page,
         limit,
+        created,
       }),
     );
-  }, [dispatch, search, category, status_filter, sort, page, limit]);
+  }, [dispatch, search, category, status_filter, sort, page, limit, created]);
 
-  // Функция для обновления параметров
   const updateParams = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams);
 
@@ -62,7 +71,6 @@ export default function AdminProductsPage() {
       params.delete(key);
     }
 
-    // Сбрасываем страницу при изменении фильтров
     if (key !== "page") {
       params.set("page", "1");
     }
@@ -71,7 +79,7 @@ export default function AdminProductsPage() {
   };
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (error) {
@@ -90,7 +98,7 @@ export default function AdminProductsPage() {
         <h1 className="text-3xl font-bold">Products</h1>
         <button
           onClick={() => router.push("/admin/products/create")}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-gray-200 hover:text-black"
         >
           Add Product
         </button>
@@ -99,6 +107,7 @@ export default function AdminProductsPage() {
       {/* Фильтры */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         {/* Search */}
+
         <input
           type="text"
           placeholder="Search products..."
@@ -109,25 +118,28 @@ export default function AdminProductsPage() {
             }, 500);
             return () => clearTimeout(timer);
           }}
-          className="px-4 py-2 border rounded-lg"
+          className="px-4 py-2 border rounded-lg border-slate-200"
         />
 
         {/* Category */}
         <select
           value={category || ""}
           onChange={(e) => updateParams("category", e.target.value)}
-          className="px-4 py-2 border rounded-lg"
+          className="px-4 py-2 border rounded-lg border-slate-200 cursor-pointer"
         >
           <option value="">All Categories</option>
-          <option value="electronics">Electronics</option>
-          <option value="apparel">Apparel</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
         </select>
 
         {/* Status */}
         <select
           value={status_filter || "all"}
           onChange={(e) => updateParams("status", e.target.value)}
-          className="px-4 py-2 border rounded-lg"
+          className="px-4 py-2 border rounded-lg border-slate-200 cursor-pointer"
         >
           <option value="all">All Status</option>
           <option value="ACTIVE">Active</option>
@@ -139,7 +151,7 @@ export default function AdminProductsPage() {
         <select
           value={sort || ""}
           onChange={(e) => updateParams("sort", e.target.value)}
-          className="px-4 py-2 border rounded-lg"
+          className="px-4 py-2 border rounded-lg border-slate-200 cursor-pointer"
         >
           <option value="">Sort by</option>
           <option value="created_desc">Newest first</option>
@@ -148,13 +160,15 @@ export default function AdminProductsPage() {
           <option value="price_desc">Price: High to Low</option>
           <option value="name_asc">Name: A-Z</option>
           <option value="name_desc">Name: Z-A</option>
+          <option value="stock_desc">Stock: From More</option>
+          <option value="stock_asc">Stock: From Less</option>
         </select>
       </div>
 
       {/* Таблица продуктов */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="w-full">
-          <thead className="bg-slate-50">
+          <thead className="bg-gray-100">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
                 Product
@@ -171,29 +185,33 @@ export default function AdminProductsPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
                 Status
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
+                Created
+              </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">
                 Actions
               </th>
             </tr>
           </thead>
+
+          {products.length === 0 && (
+            <tbody>
+              <tr>
+                <td colSpan={100} className="text-center text-base p-8">
+                  No products that fit your parameters
+                </td>
+              </tr>
+            </tbody>
+          )}
+
           <tbody className="divide-y divide-slate-200">
             {products.map((product) => (
               <tr key={product.id}>
                 <td className="px-6 py-4">
                   <div className="flex items-center">
-                    {/* {product.images?.[0] && (
-                      <img
-                        src={product.images[0].url}
-                        alt={product.title}
-                        className="w-10 h-10 rounded object-cover mr-3"
-                      />
-                    )} */}
                     <div>
                       <div className="font-medium text-slate-900">
                         {product.title}
-                      </div>
-                      <div className="text-sm text-slate-500">
-                        {product.slug}
                       </div>
                     </div>
                   </div>
@@ -220,20 +238,31 @@ export default function AdminProductsPage() {
                     {product.status}
                   </span>
                 </td>
+                <td className="px-6 py-4 text-sm text-slate-900">
+                  {new Date(product.createdAt).toLocaleString()}
+                </td>
                 <td className="px-6 py-4 text-right text-sm font-medium">
                   <button
                     onClick={() =>
                       router.push(`/admin/products/${product.id}/edit`)
                     }
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
+                    className="cursor-pointer rounded text-blue-500 p-1.5 hover:text-black mr-4 hover:bg-gray-200 transition"
                   >
-                    Edit
+                    <FaPencil size={14} />
                   </button>
+
+                  <button
+                    onClick={() => router.push(`/products/${product.id}`)}
+                    className="cursor-pointer rounded text-blue-500 p-1.5 hover:text-black mr-4 hover:bg-gray-200 transition"
+                  >
+                    <FaEye size={14} />
+                  </button>
+
                   <button
                     onClick={() => handleDelete(product.id)}
-                    className="text-red-600 hover:text-red-900"
+                    className="cursor-pointer rounded text-red-600 p-1.5 hover:bg-red-100 transition"
                   >
-                    Delete
+                    <FaRegTrashAlt size={14} />
                   </button>
                 </td>
               </tr>
@@ -257,7 +286,7 @@ export default function AdminProductsPage() {
               disabled={page === 1}
               className="px-4 py-2 border rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Previous
+              <FaChevronLeft />
             </button>
 
             <div className="flex items-center gap-2">
@@ -268,9 +297,9 @@ export default function AdminProductsPage() {
                 <button
                   key={pageNum}
                   onClick={() => updateParams("page", pageNum.toString())}
-                  className={`px-4 py-2 border rounded-lg ${
+                  className={`cursor-pointer px-4 py-2 border rounded-lg ${
                     pageNum === page
-                      ? "bg-indigo-600 text-white"
+                      ? "bg-blue-500 text-white"
                       : "hover:bg-slate-50"
                   }`}
                 >
@@ -284,7 +313,7 @@ export default function AdminProductsPage() {
               disabled={page === pagination.totalPages}
               className="px-4 py-2 border rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              <FaChevronRight />
             </button>
           </div>
         </div>

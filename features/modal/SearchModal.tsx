@@ -102,7 +102,7 @@ const SearchModal = () => {
                   <div className="flex items-center">
                     <div className="relative w-16 h-16 shrink-0 mr-4">
                       <Image
-                        src={product.images[0]}
+                        src={product.images[0].url}
                         alt={`${product.title} image`}
                         className="object-contain"
                         fill

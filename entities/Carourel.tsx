@@ -11,7 +11,7 @@ const Carousel = ({ product }: CarouselProps) => {
   return (
     <div className="relative aspect-3/2  bg-white rounded-2xl mb-4">
       <Image
-        src={product.images[0]}
+        src={product.images[0].url}
         alt={`${product.title} image`}
         className="absolute inset-0 object-contain w-full h-full"
         fill

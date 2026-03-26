@@ -1,7 +1,7 @@
 const Skeleton = () => {
   return (
-    <ul className="max-w-7xl mx-auto h-full grid grid-cols-4 gap-4 self-start mb-5">
-      {Array.from({ length: 8 }).map((_, index) => {
+    <ul className="max-w-7xl mx-auto h-full grid grid-cols-5 gap-4 self-start mb-5">
+      {Array.from({ length: 10 }).map((_, index) => {
         return (
           <li key={index} className="rounded-xl mt-4 space-y-4">
             {/* Image */}

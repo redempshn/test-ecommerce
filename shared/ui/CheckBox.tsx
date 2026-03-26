@@ -8,7 +8,7 @@ interface CheckboxProps {
 
 const Checkbox = ({ label, checked, onChange }: CheckboxProps) => {
   return (
-    <label className="flex items-center grow py-2">
+    <label className="flex items-center grow p-2 cursor-pointer">
       <input
         type="checkbox"
         checked={checked}

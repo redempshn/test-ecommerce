@@ -10,25 +10,15 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
   const [isGeneralInfoOpen, setIsGeneralInfoOpen] = useState(false);
 
-  const {
-    brand,
-    sku,
-    weight,
-    warrantyInformation,
-    shippingInformation,
-    availabilityStatus,
-    returnPolicy,
-  } = product;
-
-  const productFields = {
-    brand,
-    sku,
-    weight,
-    warrantyInformation,
-    shippingInformation,
-    availabilityStatus,
-    returnPolicy,
-  };
+  // const productFields = {
+  //   brand,
+  //   sku,
+  //   weight,
+  //   warrantyInformation,
+  //   shippingInformation,
+  //   availabilityStatus,
+  //   returnPolicy,
+  // };
 
   return (
     <div className="flex flex-col p-4 rounded-2xl bg-white">
@@ -37,7 +27,9 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         toggleAccordion={() => setIsDescriptionOpen(!isDescriptionOpen)}
         title="Description"
       >
-        <p className="text-base font-light">{product.description}</p>
+        <p className="text-base font-light">
+          {product.content.descriptionHtml}
+        </p>
       </Accordion>
 
       <Accordion
@@ -46,7 +38,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         title="General information"
       >
         <div className="flex flex-col">
-          {Object.entries(productFields).map(([key, value]) => (
+          {/* {Object.entries(productFields).map(([key, value]) => (
             <div key={key} className="flex justify-between items-center py-2">
               <span className="text-base first-letter:uppercase">{key}</span>
               <span className="text-base font-light">{value}</span>
@@ -63,7 +55,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </Accordion>
     </div>
