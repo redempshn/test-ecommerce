@@ -3,10 +3,7 @@
 import Dashboard from "@/entities/Dashboard";
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
 import { selectAllProducts } from "@/shared/lib/redux/products/products.selector";
-import {
-  fetchProductFilters,
-  fetchProducts,
-} from "@/shared/lib/redux/products/productThunk";
+import { fetchProducts } from "@/shared/lib/redux/products/productThunk";
 import ErrorState from "@/shared/ui/Error";
 import Skeleton from "@/shared/ui/Skeleton";
 import ProductCard from "@/widgets/ui/ProductCard";
@@ -60,12 +57,6 @@ const AllProducts = () => {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 mb-4">No products match your filters</p>
-        <button
-          // onClick={() => dispatch(resetFilters())}
-          className="text-blue-600 underline cursor-pointer"
-        >
-          Clear all filters
-        </button>
       </div>
     );
   }

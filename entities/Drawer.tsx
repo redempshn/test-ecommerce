@@ -1,66 +1,53 @@
 "use client";
 
-import Activefilters from "@/features/filters/ActiveFilters";
-import FilterBrand from "@/features/filters/FilterBrand";
-import FilterCategory from "@/features/filters/FilterCategory";
-import FilterPriceRange from "@/features/filters/FilterPriceRange";
-import { useAppSelector } from "@/shared/lib/hooks/reduxHooks";
-import { selectHasActiveFilters } from "@/shared/lib/redux/filters/filters.selector";
-import Button from "@/shared/ui/Button";
+import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
+import { closeDrawer, toggleDrawer } from "@/shared/lib/redux/ui/uiSlice";
 import { useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 
 interface DrawerProps {
-  onToggle: () => void;
-  currentStatus: boolean;
+  title?: string;
+  children?: React.ReactNode;
 }
 
-const Drawer = ({ onToggle, currentStatus }: DrawerProps) => {
-  const hasActiveFilters = useAppSelector(selectHasActiveFilters);
+const Drawer = ({ title, children }: DrawerProps) => {
+  const isOpen = useAppSelector((state) => state.ui.isOpenDrawer);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    document.body.style.overflow = currentStatus ? "hidden" : "";
+    document.body.style.overflow = isOpen ? "hidden" : "";
 
     return () => {
       document.body.style.overflow = "";
     };
-  }, [currentStatus]);
+  }, [isOpen]);
 
   return (
     <>
-      {currentStatus && (
+      {isOpen && (
         <div
           className="fixed inset-0 bg-black/10 backdrop-blur-sm z-40"
-          onClick={onToggle}
+          onClick={() => dispatch(toggleDrawer())}
         />
       )}
       <div
         className={
-          currentStatus
-            ? "max-w-sm max-h-screen bg-white flex flex-col absolute inset-0 z-100 border-r border-r-gray-200"
+          isOpen
+            ? "max-w-150 max-h-screen bg-white flex flex-col absolute top-0 right-0 bottom-0 z-100 border-l border-l-gray-200"
             : "hidden"
         }
       >
         <div className="flex justify-between items-center p-4 border-b-gray-300 shadow-sm mb-1">
-          <p className="text-2xl font-bold">Filters</p>
-          <IoClose size={30} onClick={onToggle} />
+          <p className="text-2xl font-bold">{title}</p>
+          <button
+            onClick={() => dispatch(closeDrawer())}
+            className="cursor-pointer"
+          >
+            <IoClose size={30} />
+          </button>
         </div>
 
-        <div className="flex flex-col grow relative">
-          {hasActiveFilters && <Activefilters />}
-
-          <FilterCategory />
-          <FilterBrand />
-          <FilterPriceRange />
-        </div>
-
-        <div className="p-4 border-t border-gray-200">
-          <Button
-            onClick={onToggle}
-            label="Accept filters"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-          />
-        </div>
+        <div className="h-full min-h-0">{children}</div>
       </div>
     </>
   );

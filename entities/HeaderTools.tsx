@@ -7,6 +7,7 @@ import { selectCartUniqueItemsCount } from "@/shared/lib/redux/cart/cart.selecto
 import Badge from "@/shared/ui/Badge";
 import Search from "./Search";
 import AccountTool from "./AccountTool";
+import Favorites from "../features/favorites/Favorites";
 
 const HeaderTools = () => {
   const router = useRouter();
@@ -19,6 +20,8 @@ const HeaderTools = () => {
 
       {/* user profile */}
       <AccountTool />
+
+      <Favorites />
 
       {/* Cart */}
       <div

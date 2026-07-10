@@ -8,7 +8,8 @@ const Activefilters = () => {
   const { slug } = useParams();
   const slugString = Array.isArray(slug) ? slug[0] : (slug ?? "");
 
-  const { toggleFilter, activeAttributes } = useFilterParams(slugString);
+  const { toggleFilter, activeAttributes, clearFilters } =
+    useFilterParams(slugString);
 
   return (
     <div className="w-full border-t border-b border-gray-200 flex items-center py-4">
@@ -39,7 +40,7 @@ const Activefilters = () => {
       </div>
 
       <button
-        onClick={() => {}}
+        onClick={() => clearFilters()}
         className="underline text-base mr-5 cursor-pointer"
       >
         clear all

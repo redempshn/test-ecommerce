@@ -36,7 +36,7 @@ const ShoppingCartItem = ({ item }: ShoppingCartItemProps) => {
       </button>
       <div className="relative w-20 h-20 shrink-0 mr-8">
         <Image
-          src={product.images[0]}
+          src={product.images[0].url}
           alt={`${product.title} image`}
           className="absolute inset-0 object-contain w-full h-full"
           fill

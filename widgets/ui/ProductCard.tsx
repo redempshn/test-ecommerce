@@ -2,25 +2,29 @@
 
 import { CiHeart } from "react-icons/ci";
 import { AiFillHeart } from "react-icons/ai";
-import { IoBagHandleOutline } from "react-icons/io5";
+import { IoBagHandleOutline, IoClose } from "react-icons/io5";
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
-import { selectCartItemByProductId } from "@/shared/lib/redux/cart/cart.selectors";
 import { addToCart } from "@/shared/lib/redux/cart/cartSlice";
 import { Product } from "@/shared/types/product";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  AddProductToFavorites,
+  DeleteFromFavorites,
+} from "@/shared/lib/redux/favorites/likeThunk";
+import { selectIsLiked } from "@/shared/lib/redux/favorites/like.selector";
 
 interface ProductCardProps {
+  showRemove?: boolean;
   product: Product;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, showRemove }: ProductCardProps) => {
   const dispatch = useAppDispatch();
-  const cartItem = useAppSelector(selectCartItemByProductId(product.id));
 
-  const [liked, setLiked] = useState(false);
+  const isLiked = useAppSelector((state) => selectIsLiked(state, product.id));
 
   const [isHovered, setIsHovered] = useState(false);
 
@@ -33,9 +37,15 @@ const ProductCard = ({ product }: ProductCardProps) => {
     toast.success("Product was added to cart.");
   };
 
-  const handleAddToFavorites = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleToggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setLiked(!liked);
+    if (isLiked) {
+      dispatch(DeleteFromFavorites({ productId: product.id }));
+      toast.success("Product was deleted from favorites.");
+    } else {
+      dispatch(AddProductToFavorites({ productId: product.id }));
+      toast.success("Product was added to favorites.");
+    }
   };
 
   return (
@@ -69,21 +79,31 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <div className="absolute top-3 right-3 bottom-3">
             <div className="flex flex-col h-full justify-between">
               <button
-                onClick={handleAddToFavorites}
+                onClick={handleToggleFavorite}
                 className="p-2 hover:bg-gray-100 transition cursor-pointer rounded text-black"
               >
-                {liked ? (
+                {isLiked ? (
                   <AiFillHeart size={20} className="fill-red-500" />
                 ) : (
                   <CiHeart size={20} />
                 )}
               </button>
-              <button
-                onClick={handleAddToCart}
-                className="p-2 border text-blue-500 border-blue-500 transition cursor-pointer rounded hover:bg-blue-500 hover:text-white"
-              >
-                <IoBagHandleOutline size={19} />
-              </button>
+
+              {showRemove ? (
+                <button
+                  onClick={handleToggleFavorite}
+                  className="p-2 border text-blue-500 border-blue-500 transition cursor-pointer rounded hover:bg-blue-500 hover:text-white"
+                >
+                  <IoClose size={22} />
+                </button>
+              ) : (
+                <button
+                  onClick={handleAddToCart}
+                  className="p-2 border text-blue-500 border-blue-500 transition cursor-pointer rounded hover:bg-blue-500 hover:text-white"
+                >
+                  <IoBagHandleOutline size={19} />
+                </button>
+              )}
             </div>
           </div>
         )}

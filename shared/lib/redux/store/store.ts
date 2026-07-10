@@ -9,6 +9,7 @@ import searchReducer from "../search/searchSlice";
 import adminProductsReducer from "../admin/adminProductSlice";
 import categoriesReducer from "../categories/categoriesSlice";
 import brandsReducer from "../brands/brandsSlice";
+import likeReducer from "../favorites/likeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     adminProducts: adminProductsReducer,
     categories: categoriesReducer,
     brands: brandsReducer,
+    favorites: likeReducer,
   },
 });
 

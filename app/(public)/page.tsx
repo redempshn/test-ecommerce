@@ -1,5 +1,6 @@
 "use client";
 
+import NewProductsList from "@/entities/NewProductsList";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -31,7 +32,8 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto flex items-center justify-center h-96 z-1">
+      <div className="max-w-7xl mx-auto z-1">
+        <NewProductsList />
         {/* тут уже всякие блоки типо, bestsellers, полные комплекты, новинки бла-бла */}
       </div>
     </>

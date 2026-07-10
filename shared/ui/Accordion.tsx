@@ -64,9 +64,9 @@ const Accordion = ({
         )}
 
         {isOpen ? (
-          <FaChevronDown className="w-5 h-5 text-gray-600" />
+          <FaChevronDown className="w-5 h-5 text-gray-600 cursor-pointer" />
         ) : (
-          <FaChevronUp className="w-5 h-5 text-gray-600" />
+          <FaChevronUp className="w-5 h-5 text-gray-600 cursor-pointer" />
         )}
       </div>
       <div

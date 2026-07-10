@@ -1,6 +1,5 @@
 "use client";
 
-import Carousel from "@/entities/Carourel";
 import ErrorState from "@/shared/ui/Error";
 import { use, useEffect } from "react";
 import ProductDetailsSkeleton from "@/shared/ui/ProductDetailsSkeleton";
@@ -9,8 +8,10 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/shared/lib/hooks/reduxHooks";
 import { fetchProductBySlug } from "@/shared/lib/redux/products/productThunk";
-// import Reviews from "@/features/products/Reviews";
 import { selectProductBySlug } from "@/shared/lib/redux/products/products.selector";
+import Galery from "@/entities/Galery";
+import RelatedProducts from "@/entities/RelatedProducts";
+import Reviews from "@/features/reviews/Reviews";
 
 interface ProductProps {
   params: Promise<{ slug: string }>;
@@ -50,14 +51,28 @@ export default function ProductPage({ params }: ProductProps) {
           </button>
         </div>
         <div className="flex justify-between gap-4">
-          <div className="basis-3/5 bg-[#f6f8fd] rounded-2xl">
-            <Carousel product={product} />
-            {/* <Reviews product={product} /> */}
+          <div className="basis-1/2 bg-[#f6f8fd] rounded-2xl">
+            <Galery product={product} />
+
+            <div className=""></div>
           </div>
-          <div className="basis-2/5">
+          <div className="basis-1/2">
             <ProductInfo product={product} />
           </div>
         </div>
+
+        <RelatedProducts productId={product.id} />
+
+        <Reviews />
+        {/* БЛОК С РЕВЬЮ */}
+
+        {/* состояние клинта для отзыва*/}
+        {/* <Link
+        href={"/signin"}
+        className="uppercase text-sm tracking-tight hover:text-blue-300 transition"
+      >
+        Sign in to rate
+      </Link> */}
       </div>
     </div>
   );

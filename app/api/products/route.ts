@@ -81,8 +81,6 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    console.time("products query");
-
     const products = await prisma.product.findMany({
       where: { ...where, status: "ACTIVE" },
       select: {
@@ -103,9 +101,6 @@ export async function GET(req: NextRequest) {
       skip,
       take: limit,
     });
-
-    console.timeEnd("products query");
-    console.log("products count:", products.length);
 
     if (products.length === 0) {
       return NextResponse.json(

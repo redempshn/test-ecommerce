@@ -1,10 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  fetchCrossSellProducts,
+  fetchNewProducts,
   fetchProductBySlug,
   fetchProductFilters,
   fetchProducts,
+  fetchRelatedProducts,
 } from "./productThunk";
 import { productsAdapter } from "../adapter";
+import { Product } from "@/shared/types/product";
 
 type Status = "idle" | "loading" | "succeeded" | "failed";
 
@@ -21,6 +25,12 @@ const initialState = productsAdapter.getInitialState({
   status: "idle" as Status,
   error: null as string | null,
   filters: [] as ProductFilter[],
+  crossSellStatus: "idle" as Status,
+  crossSellProducts: [] as Product[],
+  relatedProductsStatus: "idle" as Status,
+  relatedProducts: [] as Product[],
+  newProductsStatus: "idle" as Status,
+  newProducts: [] as Product[],
   activeFilters: {} as ActiveFilters,
   currentCategory: null as string | null,
   pagination: null as {
@@ -104,6 +114,39 @@ const productSlice = createSlice({
       .addCase(fetchProductFilters.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? "Failed to fetch filters";
+      })
+      .addCase(fetchCrossSellProducts.pending, (state) => {
+        state.crossSellStatus = "loading";
+      })
+      .addCase(fetchCrossSellProducts.fulfilled, (state, action) => {
+        state.crossSellStatus = "succeeded";
+        state.crossSellProducts = action.payload.products;
+      })
+      .addCase(fetchCrossSellProducts.rejected, (state, action) => {
+        state.crossSellStatus = "failed";
+        state.error = action.payload ?? "Failed to fetch products";
+      })
+      .addCase(fetchRelatedProducts.pending, (state) => {
+        state.relatedProductsStatus = "loading";
+      })
+      .addCase(fetchRelatedProducts.fulfilled, (state, action) => {
+        state.relatedProductsStatus = "succeeded";
+        state.relatedProducts = action.payload.products;
+      })
+      .addCase(fetchRelatedProducts.rejected, (state, action) => {
+        state.relatedProductsStatus = "failed";
+        state.error = action.payload ?? "Failed to fetch products";
+      })
+      .addCase(fetchNewProducts.pending, (state) => {
+        state.newProductsStatus = "loading";
+      })
+      .addCase(fetchNewProducts.fulfilled, (state, action) => {
+        state.newProductsStatus = "succeeded";
+        state.newProducts = action.payload.products;
+      })
+      .addCase(fetchNewProducts.rejected, (state, action) => {
+        state.newProductsStatus = "failed";
+        state.error = action.payload ?? "Failed to fetch products";
       });
   },
 });

@@ -43,6 +43,8 @@ model User {
   likedProducts      LikedProduct[]
   viewed             ViewedProduct[]
   passwordResetToken PasswordResetToken[]
+
+  reviews Review[]
 }
 
 model Category {
@@ -87,6 +89,8 @@ model Product {
   likedBy     LikedProduct[]
   viewedBy    ViewedProduct[]
 
+  reviews Review[]
+
   @@index([categoryId])
   @@index([status])
   @@index([categoryId, status])
@@ -119,8 +123,8 @@ model ProductImage {
 }
 
 model LikedProduct {
-  userId    Int
-  productId Int
+  userId    Int     
+  productId Int     
 
   user      User    @relation(fields: [userId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
@@ -178,4 +182,18 @@ model PasswordResetToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+
+  rating Int
+  comment String
+
+  @@unique([userId, productId])
 }

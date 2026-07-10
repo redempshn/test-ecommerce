@@ -2,9 +2,6 @@
 import { productsAdapter } from "../adapter";
 import { RootState } from "../store/store";
 
-// export const selectProductsState = (state: RootState) => state.products;
-// export const selectProductsStatus = (state: RootState) => state.products.status;
-
 // Селекторы из adapter
 export const {
   selectAll: selectAllProducts,

@@ -28,5 +28,12 @@ export const useFilterParams = (slug: string) => {
     router.push(`/products/category/${slug}?${params.toString()}`);
   };
 
-  return { toggleFilter, activeAttributes };
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("attributes");
+    params.set("page", "1");
+    router.push(`/products/category/${slug}?${params.toString()}`);
+  };
+
+  return { toggleFilter, activeAttributes, clearFilters };
 };

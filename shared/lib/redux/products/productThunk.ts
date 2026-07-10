@@ -152,3 +152,107 @@ export const fetchProductFilters = createAsyncThunk<
     return rejectWithValue("Unexpected error occurred");
   }
 });
+
+// рекомендации
+
+export interface CrossSellProductsResponse {
+  products: Product[];
+}
+
+export const fetchCrossSellProducts = createAsyncThunk<
+  CrossSellProductsResponse,
+  { productId: number; limit?: number },
+  { rejectValue: string }
+>(
+  "products/fetchCrossSellProducts",
+  async ({ productId, limit = 4 }, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosInstance.get(
+        `/api/recommendations/cross-sell?productId=${productId}&limit=${limit}`,
+      );
+
+      return data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const message =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to fetch cross-sell products";
+        return rejectWithValue(message);
+      }
+
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+
+      return rejectWithValue("Unexpected error occurred");
+    }
+  },
+);
+
+export interface RelatedProductsResponse {
+  products: Product[];
+}
+
+export const fetchRelatedProducts = createAsyncThunk<
+  RelatedProductsResponse,
+  { productId: number; limit?: number },
+  { rejectValue: string }
+>(
+  "products/fetchRelatedProducts",
+  async ({ productId, limit = 5 }, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosInstance.get(
+        `/api/recommendations/related?productId=${productId}&limit=${limit}`,
+      );
+
+      return data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const message =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to fetch related products";
+        return rejectWithValue(message);
+      }
+
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+
+      return rejectWithValue("Unexpected error occurred");
+    }
+  },
+);
+
+// новые продукты для main page
+export interface NewProductsResponse {
+  products: Product[];
+}
+export const fetchNewProducts = createAsyncThunk<
+  NewProductsResponse,
+  { limit: number },
+  { rejectValue: string }
+>("products/fetchNewProducts", async ({ limit = 5 }, { rejectWithValue }) => {
+  try {
+    const { data } = await axiosInstance.get(
+      `/api/recommendations/new-products?limit=${limit}`,
+    );
+
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to fetch new products";
+      return rejectWithValue(message);
+    }
+
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+
+    return rejectWithValue("Unexpected error occurred");
+  }
+});
